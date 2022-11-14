@@ -35,6 +35,21 @@ describe("Server Apis", ()=>{
             expect(body.email).toBe(mockUser.email);
         });
 
+        it("Should return 400 when the user exists", async()=>{
+            const mockUser = {
+                email: "user@emailmocked.com",
+                password: "password"
+            }
+
+            const user = new User(mockUser);
+            jest.spyOn(User, "findOne").mockReturnValueOnce(user as any);
+            const { status, error } = await request(app).post("/signup").send(mockUser);
+            expect(status).toBe(400);
+            const err = JSON.parse(JSON.stringify(error));
+            const errText = JSON.parse(err.text);
+            expect(errText.msg).toMatch("User already exists")
+        });
+
         it("Should return an error while a user attribute missing", async() =>{
             const mockUser = {
                 email: "user@user.com"
@@ -66,6 +81,50 @@ describe("Server Apis", ()=>{
             const { status, error } = await request(app).post("/signin").send(mockUser);
             expect(status).toBe(200);
         });
-    })
+
+        it("Should return an error while a user attribute missing", async() =>{
+            const mockUser = {
+                email: "user@user.com"
+            }
+
+            const { status, error } = await request(app).post("/signin").send(mockUser);
+
+            expect(status).toBe(400);
+            const err = JSON.parse(JSON.stringify(error));
+            const errText = JSON.parse(err.text);
+            expect(errText.msg).toMatch("Please. Send your email and password")
+        });
+    });
+
+    it("Should return 400 when the user does not exist", async()=>{
+        const mockUser = {
+            email: "user@emailmocked.com",
+            password: "password"
+        }
+
+        jest.spyOn(User, "findOne").mockReturnValueOnce(null as any);
+        const { status, error } = await request(app).post("/signin").send(mockUser);
+        expect(status).toBe(400);
+        const err = JSON.parse(JSON.stringify(error));
+        const errText = JSON.parse(err.text);
+        expect(errText.msg).toMatch("User does not exist");
+    });
+
+    it("Should return no match", async()=>{
+        const mockUser = {
+            email: "user@emailmocked.com",
+            password: "password"
+        }
+
+        const user = new User(mockUser);
+
+        jest.spyOn(User, "findOne").mockReturnValueOnce(user as any);
+        jest.spyOn(user, "comparePassword").mockImplementationOnce(() => Promise.resolve(false));
+        const { status, error } = await request(app).post("/signin").send(mockUser);
+        expect(status).toBe(400);
+        const err = JSON.parse(JSON.stringify(error));
+        const errText = JSON.parse(err.text);
+        expect(errText.msg).toMatch("Mail or password incorrect");
+    });
 
 })

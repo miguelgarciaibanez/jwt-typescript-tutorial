@@ -9,7 +9,6 @@ export const signUp = async (req: Request, res: Response):Promise<Response> => {
     } 
 
     const user = await User.findOne({email:req.body.email});
-    console.log(user);
     if (user) {
         return res.status(400).json({msg: 'User already exists'});
     }
@@ -27,7 +26,7 @@ export const signIn = async (req: Request, res: Response) => {
 
     const user = await User.findOne({email:req.body.email});
     if (!user) {
-        res.status(400).json({message:'User does not exists'});
+        return res.status(400).json({msg:'User does not exist'});
     }
 
     const isMatch = await user?.comparePassword(req.body.password);
@@ -37,6 +36,6 @@ export const signIn = async (req: Request, res: Response) => {
         return res.status(200).json({token:createToken(user)});
     }
 
-    return res.status(400).json({message: 'Mail or password incorrect'});
+    return res.status(400).json({msg: 'Mail or password incorrect'});
 
 }
