@@ -1,6 +1,7 @@
 import User from '../user';
 import { Types } from "mongoose";
 import "../../config/config";
+import bcrypt from 'bcrypt';
 
 
 describe ("Users Model", () => {
@@ -72,5 +73,20 @@ describe ("Users Model", () => {
         });
     });
 
+
+    describe("Compare passwords", ()=>{
+        it("Should return true comparing passwords", async ()=>{
+            const mockUser = {
+                email: "user@emailmocked.com",
+                password: "password"
+            }
+    
+            const user = new User(mockUser);
+            jest.spyOn(bcrypt,"compare").mockReturnValueOnce(true as any);
+            const res = await user.comparePassword("password");
+            expect(res).toBe(true);
+        });
+        
+    })
     
 })
