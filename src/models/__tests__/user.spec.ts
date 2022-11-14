@@ -5,7 +5,6 @@ import bcrypt from 'bcrypt';
 
 
 describe ("Users Model", () => {
-
     describe("Create users", ()=> {
         it("Should create a new user successfully", () =>{
             const mockUser = {
@@ -88,5 +87,4 @@ describe ("Users Model", () => {
         });
         
     })
-    
 })
